@@ -1,0 +1,9 @@
+div(ng-repeat='output in outputs')
+    p
+      button(ui-toggle='showHide') {{output}}: {{!!showHide}}
+
+
+p
+  | pfio page
+  | Showing of 'interpolate' filter:
+  | {{ 'Current version is v%VERSION%.' | interpolate }}
