@@ -8,7 +8,7 @@ var Bitlash = require('bitlash-commander/lib/bitlash.js');
 var bitlash_options = {
         debug: true,
         echo: false,
-        port: '/dev/tty.usbmodemfd121',
+        port: '/dev/tty.usbmodemfa131',
 }
 
 bitlash_options.baud = 57600;
@@ -18,11 +18,13 @@ var bitlash = new Bitlash.Bitlash(bitlash_options, function (readytext) {
 })
 
 function executeBitlash(data, callback) {
+  console.log("EXECUTING...")
     if (bitlash.ready) {
         bitlash.exec(data.cmd + '\n', function(reply) {
             reply = reply.trim();
             if (reply && reply.length>0) {
                 callback(reply)
+                // executeBitlash(data, callback);
             }
             else {
               console.log("NO REPLY");
@@ -37,44 +39,34 @@ function executeBitlash(data, callback) {
 }
 
 module.exports = function (socket) {
-    setInterval(function() {
-          socket.emit('bitlash:ready', { ready: bitlash.ready })
-          executeBitlash({cmd: 'print get_temp()'}, function(res) {
-            socket.emit('arduino:temperature', { data: res })
-          })
-    }, 1000)
-    // if (bitlash.ready) {
-    //   console.log(">>>>> EXECUTE BITLASH <<<<<<")
-    //   executeBitlash({cmd: 'get_temp()'}, socket)
-    // }
-
-
-  console.log('>>>> EXPORT')
+  socket.emit('bitlash:ready', { Ready: bitlash.ready })
 
   socket.emit('send:name', {
-    name: 'JJJ',
+    name: 'Nat',
   });
 
   socket.emit('server:send:nat', {
     nat: 'ok'
   })
 
-  var connection = amqp.createConnection({ host: 'localhost' });
+  var connection = amqp.createConnection({ host: 'nazt-pi.local' });
   var x;
 
   // Wait for connection to become established.
-  // connection.addListener('ready', function () {
-  //     var q;
-  //     console.log('>>>> ready')
-  //     socket.emit('queue:ready', { ready: true })
-  //     x = connection.exchange()
-  //     q = connection.queue("pfio2", { autoDelete: true, durable: false, exclusive: false });
-  //     x.publish('pfio2', "0001" , {deliveryMode: 2}, function(cb) {console.log("OOK") });
-  // });
+  connection.addListener('ready', function () {
+      var q;
+      console.log('queue ready')
+      socket.emit('queue:ready', { ready: true })
+      x = connection.exchange()
+      // bind the queue
+      q = connection.queue("pfio", { autoDelete: true, durable: false, exclusive: false });
+      socket.on('client:pfio', function(data) {
+        console.log('sending: ', data)
+        x.publish('pfio', data.code);
+        // x.publish('pfio2', "0001" , {deliveryMode: 2}, function(cb) {console.log("OOK") });
+      });
+  });
 
-  // socket.on('client:command', function(data) {
-  //   console.log('receive: ', data)
-  // });
 
   setInterval(function () {
     socket.emit('send:time', {

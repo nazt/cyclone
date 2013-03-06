@@ -1,9 +1,7 @@
-div(ng-repeat='output in outputs')
-    p
-      button(ui-toggle='showHide') {{output}}: {{!!showHide}}
+p(class='lead')
+  | Status: {{code}}
 
-
-p
-  | pfio page
-  | Showing of 'interpolate' filter:
-  | {{ 'Current version is v%VERSION%.' | interpolate }}
+<div>
+span.each-button(ng-repeat='p in outputs')
+  button(class='btn btn-medium {{classes[p.on]}}', ng-click='click(p)') P{{p.pin}}: {{status[p.on]}}
+</div>

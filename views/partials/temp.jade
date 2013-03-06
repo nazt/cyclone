@@ -1,3 +1,13 @@
 p Ready: {{ ready }}
-p Temp page - {{ data }} -
-p Temperature is {{temp}} celcius and Humidity is {{humid}}%
+p Temperature: {{temp}} celcius.
+p Humidity: {{humid}}%
+
+
+div.btn-group(bs-buttons-radio, ng-model="radioValue")
+  button(class="btn {{cls[radioValue=='b1']}}", value="b1") Temperature screen
+  button(class="btn {{cls[radioValue=='b2']}}", value="b2") Show Hello text
+  button(class="btn {{cls[radioValue=='b3']}}", value="b3") Show Morning
+  input(type="text", ng-model="typingText")
+
+p {{radioValue}}
+p {{ typingText }}
